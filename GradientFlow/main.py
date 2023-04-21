@@ -23,8 +23,8 @@ from random import choices
 from imageio import imread
 from matplotlib import pyplot as plt
 from von_mises_fisher import VonMisesFisher
-import cvxpy as cp
-from geomloss import SamplesLoss
+# import cvxpy as cp
+# from geomloss import SamplesLoss
 np.random.seed(1)
 torch.manual_seed(1)
 random.seed(1)
@@ -72,7 +72,7 @@ def SW(X, Y, L=30, p=2, device="cpu"):
 
 
 
-def MaxSW(X,Y,p=2,s_lr=0.1,n_lr=100,device="cpu"):
+def MaxSW(X,Y,p=2,s_lr=0.1,n_lr=30,device="cpu"):
     dim = X.size(1)
     theta = torch.randn((1, dim), device=device, requires_grad=True)
     theta.data = theta.data / torch.sqrt(torch.sum(theta.data ** 2, dim=1,keepdim=True))
@@ -92,7 +92,7 @@ def MaxSW(X,Y,p=2,s_lr=0.1,n_lr=100,device="cpu"):
     sw = one_dimensional_Wasserstein_prod(X_prod, Y_prod, p=p)
     return torch.pow(sw,1./p)
 
-def KSW(X, Y, L=20,n_lr=2, p=2, device="cpu"):
+def KSW(X, Y, L=15,n_lr=2, p=2, device="cpu"):
     dim = X.size(1)
     theta = torch.randn((L, dim),device=device)
     theta.data = theta.data / torch.sqrt(torch.sum(theta.data ** 2, dim=1,keepdim=True))
@@ -129,7 +129,7 @@ def oMSW(X, Y, L=5,n_lr=2, p=2, device="cpu"):
     return torch.pow(sw, 1. / p)
 
 
-def rMSW(X, Y, L=2,kappa=100,n_lr=5, p=2, device="cpu"):
+def rMSW(X, Y, L=2,kappa=50,n_lr=5, p=2, device="cpu"):
     dim = X.size(1)
     theta = torch.randn((L, dim),device=device)
     theta.data = theta.data / torch.sqrt(torch.sum(theta.data ** 2, dim=1,keepdim=True))
@@ -145,7 +145,7 @@ def rMSW(X, Y, L=2,kappa=100,n_lr=5, p=2, device="cpu"):
     return  torch.pow(sw,1./p)
 def projection(U, V):
     return torch.sum(V * U,dim=1,keepdim=True)* U / torch.sum(U * U,dim=1,keepdim=True)
-def MaxKSW(X,Y,L=2,p=2,s_lr=0.1,n_lr=100,device="cpu"):
+def MaxKSW(X,Y,L=2,p=2,s_lr=0.1,n_lr=15,device="cpu"):
     dim = X.size(1)
     theta = torch.randn((L, dim), device=device, requires_grad=True)
     theta.data[[0]] = theta.data[[0]] / torch.sqrt(torch.sum(theta.data[[0]] ** 2, dim=1,keepdim=True))
@@ -224,7 +224,7 @@ N, M = (1000, 1000) if not use_cuda else (1000, 1000)
 X_i = draw_samples("density_a.png", N, dtype)
 Y_j = draw_samples("density_b.png", M, dtype)
 
-def iMSW(X,Y,L=2,p=2,s_lr=0.1,n_lr=5,M=2,N=2,device="cpu",ortho_type="normal"):
+def iMSW(X,Y,L=2,p=2,s_lr=0.1,n_lr=5,M=0,N=1,device="cpu",ortho_type="normal"):
     dim = X.size(1)
     theta = torch.randn((L, dim), device=device, requires_grad=True)
     theta.data = theta.data / torch.sqrt(torch.sum(theta.data ** 2, dim=1, keepdim=True))
@@ -246,7 +246,7 @@ def iMSW(X,Y,L=2,p=2,s_lr=0.1,n_lr=5,M=2,N=2,device="cpu",ortho_type="normal"):
     Y_prod = torch.matmul(Y, theta.transpose(0, 1))
     sw = one_dimensional_Wasserstein_prod(X_prod, Y_prod, p=p)
     return torch.pow(sw,1./p)
-def viMSW(X,Y,L=2,kappa=10,p=2,s_lr=0.1,n_lr=5,M=0,N=1,device="cpu",ortho_type="normal"):
+def viMSW(X,Y,L=2,kappa=50,p=2,s_lr=0.1,n_lr=5,M=0,N=1,device="cpu",ortho_type="normal"):
     dim = X.size(1)
     theta = torch.randn((L, dim), device=device, requires_grad=True)
     theta.data = theta.data / torch.sqrt(torch.sum(theta.data ** 2, dim=1, keepdim=True))
@@ -340,25 +340,25 @@ def gradient_flow(loss, lr=.0001,title='m-OT',flag=False) :
 for _ in range(1000):
     a = np.random.randn(100)
     a = torch.randn(100)
-# np.random.seed(1)
-# torch.manual_seed(1)
-# random.seed(1)
-# gradient_flow(SW,title='SW L=30',flag=True)
+np.random.seed(1)
+torch.manual_seed(1)
+random.seed(1)
+gradient_flow(SW,title='SW L=30',flag=True)
 #
-# np.random.seed(1)
-# torch.manual_seed(1)
-# random.seed(1)
-# gradient_flow(MaxSW,title='Max-SW T=30',flag=False)
+np.random.seed(1)
+torch.manual_seed(1)
+random.seed(1)
+gradient_flow(MaxSW,title='Max-SW T=30',flag=False)
 #
-# np.random.seed(1)
-# torch.manual_seed(1)
-# random.seed(1)
-# gradient_flow(iMSW,title='iMSW L=5 T=2',flag=False)
+np.random.seed(1)
+torch.manual_seed(1)
+random.seed(1)
+gradient_flow(iMSW,title='iMSW L=2 T=5',flag=False)
 # 
-# np.random.seed(1)
-# torch.manual_seed(1)
-# random.seed(1)
-# gradient_flow(KSW,title='K-SW L=15 K=2',flag=False)
+np.random.seed(1)
+torch.manual_seed(1)
+random.seed(1)
+gradient_flow(KSW,title='K-SW L=15 K=2',flag=False)
 # 
 np.random.seed(1)
 torch.manual_seed(1)
@@ -371,12 +371,8 @@ gradient_flow(MaxKSW,title='Max-K-SW K=2 T=15',flag=False)
 # random.seed(1)
 # gradient_flow(oMSW,title='oMSW L=5 T=2',flag=False)
 
-# np.random.seed(1)
-# torch.manual_seed(1)
-# random.seed(1)
-# gradient_flow(viMSW,title='viMSW L=5 T=2 $\kappa$=50',flag=False)
+np.random.seed(1)
+torch.manual_seed(1)
+random.seed(1)
+gradient_flow(viMSW,title='viMSW L=2 T=5 $\kappa$=50',flag=False)
 
-# np.random.seed(1)
-# torch.manual_seed(1)
-# random.seed(1)
-# gradient_flow(rMSW,title='rMSW L=2 T=5 $\kappa$=10',flag=False)
